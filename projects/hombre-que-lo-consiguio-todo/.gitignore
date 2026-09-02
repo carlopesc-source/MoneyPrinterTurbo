@@ -1,2 +1,8 @@
 salida/
 daniel/
+animatica/daniel/
+animatica/*.wav
+animatica/*.srt
+animatica/*.mp4
+animatica/*.log
+animatica/__pycache__/

@@ -12,6 +12,7 @@ ejecutar con el CLI de este repo.
 | `run_prueba.sh` | Render de una sola tarea con el guion entero. La prueba rápida. |
 | `run_bloques.sh` | Render de 12 tareas (una por bloque) y concatenado con ffmpeg. La versión buena. |
 | `personaje_daniel.md` | Qué se puede y qué no se puede hacer con Daniel dibujado, y el plano a plano. |
+| `animatica/` | Dibuja los 87 planos de Daniel y monta el vídeo con ellos, sin Pexels ni imágenes externas. Para ver el montaje antes de encargar arte. |
 | `guion.txt`, `terminos.txt`, `bloques.jsonl` | Generados. No los edites: se sobrescriben. |
 
 ## 1. Configuración

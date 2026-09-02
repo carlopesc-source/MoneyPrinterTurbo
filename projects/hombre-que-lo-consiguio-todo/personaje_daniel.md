@@ -17,9 +17,16 @@ Comprobado leyendo el código, no supuesto:
   las imágenes que le des y las convierte en clips (`app/services/video.py`,
   `preprocess_video`).
 
-Conclusión: los fotogramas de Daniel hay que generarlos fuera (con la
-herramienta de imagen que uses), y este repo se encarga del montaje, la voz,
-los subtítulos y el render.
+Conclusión: los fotogramas de Daniel hay que generarlos fuera, y este repo se
+encarga del montaje, la voz, los subtítulos y el render.
+
+**Hay dos formas de generarlos**, y no compiten:
+
+1. `animatica/` (en esta misma carpeta) dibuja los 87 planos con polígonos:
+   sale gratis, tarda veinte segundos y sirve para ver el montaje entero antes
+   de gastar en arte. Es lo que se ha usado para el vídeo de prueba.
+2. Con la herramienta de imagen que prefieras, siguiendo el plano a plano de
+   más abajo. Es la vía para el vídeo definitivo.
 
 ## Reglas técnicas de las imágenes locales
 
