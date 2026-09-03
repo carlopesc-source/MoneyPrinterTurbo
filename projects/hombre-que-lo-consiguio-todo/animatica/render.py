@@ -1,13 +1,22 @@
-"""Renderiza usando las funciones reales del repo (video.py), con material local."""
-import glob, os, shutil, sys, time
+"""Renderiza usando las funciones reales del repo (video.py), con material local.
+
+El último paso (pegar el audio y quemar los subtítulos) lo hace ffmpeg por
+defecto: sobre 8:41 de vídeo, moviepy tardó más de media hora y ffmpeg tarda
+dos minutos. Con --moviepy se usa generate_video() del repo, que además mezcla
+la música de fondo.
+"""
+import glob, os, shutil, subprocess, sys, time
 from concurrent.futures import ProcessPoolExecutor
-sys.path.insert(0, "/home/user/MoneyPrinterTurbo")
+sys.path.insert(0, os.path.abspath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "..")))
 
 from app.models.schema import MaterialInfo, VideoAspect, VideoConcatMode, VideoParams
 from app.services import video as V
 from app.utils import utils
 
 BASE = os.path.dirname(os.path.abspath(__file__))
+# animatica -> hombre-que-lo-consiguio-todo -> projects -> raíz del repo
+RAIZ = os.path.abspath(os.path.join(BASE, "..", "..", ".."))
 CLIP = 6
 
 
@@ -17,7 +26,22 @@ def _una(ruta):
     return r[0].url if r else None
 
 
-def main(limite=None, audio=None, srt=None, salida="demo.mp4"):
+def quemar_con_ffmpeg(video, audio, srt, salida, fuentes):
+    """Pega el audio y quema los subtítulos con libass. Devuelve la ruta."""
+    estilo = ("FontName=Be Vietnam Pro,Fontsize=26,PrimaryColour=&H00FFFFFF,"
+              "OutlineColour=&H00000000,Outline=2,MarginV=45")
+    filtro = f"subtitles={srt}:fontsdir={fuentes}:force_style='{estilo}'"
+    subprocess.run(
+        ["ffmpeg", "-y", "-loglevel", "error", "-i", video, "-i", audio,
+         "-vf", filtro, "-c:v", "libx264", "-preset", "faster", "-crf", "26",
+         "-c:a", "aac", "-b:a", "128k", "-shortest", "-movflags", "+faststart",
+         salida],
+        check=True,
+    )
+    return salida
+
+
+def main(limite=None, audio=None, srt=None, salida="demo.mp4", moviepy=False):
     destino = utils.storage_dir("local_videos", create=True)
     imgs = sorted(glob.glob(os.path.join(BASE, "daniel", "*.png")))
     if limite:
@@ -66,14 +90,20 @@ def main(limite=None, audio=None, srt=None, salida="demo.mp4"):
     )
     print(f"      combinado en {time.time()-t0:.0f}s", flush=True)
 
-    print("[3/3] quemando subtítulos y audio", flush=True)
-    V.generate_video(
-        video_path=combinado,
-        audio_path=audio,
-        subtitle_path=srt,
-        output_file=os.path.join(BASE, salida),
-        params=params,
-    )
+    destino_final = os.path.join(BASE, salida)
+    print(f"[3/3] quemando subtítulos y audio ({'moviepy' if moviepy else 'ffmpeg'})",
+          flush=True)
+    if moviepy:
+        V.generate_video(
+            video_path=combinado,
+            audio_path=audio,
+            subtitle_path=srt,
+            output_file=destino_final,
+            params=params,
+        )
+    else:
+        quemar_con_ffmpeg(combinado, audio, srt, destino_final,
+                          os.path.join(RAIZ, "resource", "fonts"))
     print(f"LISTO: {os.path.join(BASE, salida)} en {time.time()-t0:.0f}s")
 
 
@@ -84,5 +114,7 @@ if __name__ == "__main__":
     p.add_argument("--audio", default=os.path.join(BASE, "narracion.wav"))
     p.add_argument("--srt", default=os.path.join(BASE, "narracion.srt"))
     p.add_argument("--salida", default="demo.mp4")
+    p.add_argument("--moviepy", action="store_true",
+                   help="usar generate_video() del repo en vez de ffmpeg (mucho más lento)")
     a = p.parse_args()
-    main(a.limite, a.audio, a.srt, a.salida)
+    main(a.limite, a.audio, a.srt, a.salida, a.moviepy)

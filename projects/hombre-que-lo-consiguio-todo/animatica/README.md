@@ -29,7 +29,7 @@ normal: `run_bloques.sh`. La voz de Edge es incomparablemente mejor.
 | `escenas.py` | Catorce fondos planos: ventana de noche, ventana al amanecer, cocina, oficina, coche, taller, taller en verano, calle de pueblo, cama, tren, salón, salón vacío y dos fondos lisos. |
 | `planos.py` | La lista de planos: qué fondo, quién sale, con qué cara y a qué escala. De cada plano saca además una versión de plano corto recortada sobre el lienzo supermuestreado, así que no pierde nitidez. |
 | `voz.py` | Narración con espeak-ng, offline. Sintetiza frase a frase para conocer la duración exacta de cada una y escribir el SRT sin Whisper. |
-| `render.py` | Preprocesa las imágenes en paralelo, monta contra la narración y quema los subtítulos, todo con `app/services/video.py`. |
+| `render.py` | Preprocesa las imágenes en paralelo y monta contra la narración con `app/services/video.py`. El último paso (audio + subtítulos quemados) lo hace ffmpeg con libass, porque sobre 8:41 de vídeo moviepy tardó más de media hora y ffmpeg tarda dos minutos; con `--moviepy` se fuerza el `generate_video()` del repo, que además mezcla música de fondo. |
 
 ## Cambiar un plano
 
@@ -54,4 +54,16 @@ plano medio con la cara en el tercio superior si no.
   ni animación entre fotogramas: cada plano es una imagen fija con un zoom
   lento del 18 %, el que aplica `preprocess_video`.
 - La voz de `voz.py` es espeak-ng: robótica. Está ahí porque el endpoint de
-  Edge TTS puede estar bloqueado, no porque sea buena.
+  Edge TTS puede estar bloqueado, no porque sea buena. Con Edge disponible,
+  `run_bloques.sh` da otra cosa.
+
+## Tiempos medidos
+
+Sobre este guion, en cuatro núcleos:
+
+| Paso | Tiempo |
+|---|---|
+| 87 imágenes -> clips (4 procesos) | 980 s |
+| Montaje de los 87 clips contra 8:41 de narración | 543 s |
+| Audio + subtítulos con ffmpeg | ~120 s |
+| Audio + subtítulos con moviepy (`--moviepy`) | más de 1800 s, sin terminar |
