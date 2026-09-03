@@ -9,16 +9,33 @@ ejecutar con el CLI de este repo.
 |---|---|
 | `guion.md` | **Fuente de verdad.** Guion por bloques, con marcas de tiempo y términos de búsqueda. Es el único fichero que se edita a mano. |
 | `construir_bloques.py` | Regenera `guion.txt`, `terminos.txt` y `bloques.jsonl` a partir de `guion.md`, e imprime la duración estimada de cada bloque. |
-| `run_prueba.sh` | Render de una sola tarea con el guion entero. La prueba rápida. |
-| `run_bloques.sh` | Render de 12 tareas (una por bloque) y concatenado con ffmpeg. La versión buena. |
+| `hacer_video.py` | **El que hace todo.** Comprueba la clave, regenera los ficheros, lanza los bloques y une el MP4 final. No hay que pegar nada a mano. |
+| `prueba.bat`, `completo.bat` | Windows: doble clic. Llaman a `hacer_video.py` con el Python del proyecto. |
+| `run_prueba.sh`, `run_bloques.sh` | Lo mismo en Linux/Mac. Son envoltorios de `hacer_video.py`. |
+| `WINDOWS.md` | Cómo traerse esta rama desde GitHub y hacer el vídeo en Windows, paso a paso. |
 | `personaje_daniel.md` | Qué se puede y qué no se puede hacer con Daniel dibujado, y el plano a plano. |
 | `animatica/` | Dibuja los 87 planos de Daniel y monta el vídeo con ellos, sin Pexels ni imágenes externas. Para ver el montaje antes de encargar arte. |
 | `guion.txt`, `terminos.txt`, `bloques.jsonl` | Generados. No los edites: se sobrescriben. |
 
+## 0. La vía corta
+
+En Windows, doble clic en `prueba.bat` (muestra de 45 s) o en `completo.bat`
+(vídeo entero). En Linux o Mac:
+
+```bash
+python3 projects/hombre-que-lo-consiguio-todo/hacer_video.py --prueba
+python3 projects/hombre-que-lo-consiguio-todo/hacer_video.py
+```
+
+Se encarga de todo: comprueba `config.toml`, pide la clave de Pexels la primera
+vez si falta, regenera los ficheros derivados, renderiza bloque a bloque y une
+el resultado. El resto de este documento es para entender qué hace por dentro.
+
 ## 1. Configuración
 
 La clave de Pexels va en `config.toml`, que está en `.gitignore` y **no se
-sube al repositorio**. Si no lo tienes creado:
+sube al repositorio**. `hacer_video.py` lo crea y lo rellena solo la primera
+vez, así que este paso solo hace falta si prefieres hacerlo a mano:
 
 ```bash
 cp config.example.toml config.toml

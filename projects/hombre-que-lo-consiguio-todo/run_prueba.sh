@@ -1,31 +1,14 @@
 #!/usr/bin/env bash
-# Prueba rápida: una sola tarea con el guion entero.
+# Muestra rápida: solo los 2 primeros bloques del guion (unos 45 segundos).
 #
 # Uso:
-#   bash projects/hombre-que-lo-consiguio-todo/run_prueba.sh            # vídeo completo
-#   bash projects/hombre-que-lo-consiguio-todo/run_prueba.sh audio      # solo TTS, para medir duración
+#   bash projects/hombre-que-lo-consiguio-todo/run_prueba.sh          # vídeo de muestra
+#   bash projects/hombre-que-lo-consiguio-todo/run_prueba.sh audio    # solo la voz
 #
-# Se ejecuta desde la raíz del repo. Requiere pexels_api_keys en config.toml.
+# Equivalente en Windows: doble clic en prueba.bat
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RAIZ="$(cd "$DIR/../.." && pwd)"
 ETAPA="${1:-video}"
 
-cd "$RAIZ"
-python3 "$DIR/construir_bloques.py" >/dev/null
-
-exec python3 cli.py \
-  --video-subject "El hombre que lo consiguió todo" \
-  --video-script "$(cat "$DIR/guion.txt")" \
-  --video-terms "$(cat "$DIR/terminos.txt")" \
-  --video-source pexels \
-  --video-aspect 16:9 \
-  --video-clip-duration 6 \
-  --match-materials-to-script \
-  --voice-name "es-ES-AlvaroNeural-Male" \
-  --font-name "BeVietnamPro-Bold.ttf" \
-  --font-size 48 \
-  --subtitle-position bottom \
-  --bgm-type none \
-  --stop-at "$ETAPA"
+exec python3 "$DIR/hacer_video.py" --prueba --parar-en "$ETAPA"

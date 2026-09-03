@@ -1,0 +1,3 @@
+# Los .bat tienen que llegar a Windows con saltos de línea CRLF: con LF, cmd.exe
+# falla de formas raras (etiquetas, la última línea sin ejecutar).
+*.bat text eol=crlf
